@@ -13,6 +13,7 @@ These skills follow the [Agent Skills](https://docs.claude.com/en/docs/claude-co
 | [`concerto-migrate`](./skills/concerto-migrate/) | Migrate Concerto models and data across major versions. |
 | [`concerto-codegen`](./skills/concerto-codegen/) | Generate code and schema artifacts from a `.cto` model. |
 | [`template-author`](./skills/template-author/) | Scaffold and edit Accord Project smart legal contract templates. |
+| [`template-migrate`](./skills/template-migrate/) | Migrate Cicero templates between major versions (e.g. 0.24/0.25 → 0.26). |
 
 ## Using a skill
 
