@@ -1,21 +1,351 @@
 ---
 name: template-migrate
-description: Migrate Accord Project smart legal contract templates between Cicero major versions. Use when bumping `@accordproject/cicero-core` (e.g. 0.22/0.24/0.25 → 0.26), when `Template.fromDirectory` throws because of an unversioned namespace or a removed API (`Clause.parse`, `template.getParserManager()`), when the `concerto` CLI fails to install transitively, or when `@accordproject/template-engine@3.x` rejects a previously-working `grammar.tem.md` for missing optional guards.
+description: Migrate Accord Project smart legal contract templates between Cicero major versions. Use when bumping `@accordproject/cicero-core` (e.g. 0.22 → 0.25 or 0.22/0.24/0.25 → 0.26), when a template has `.ergo` logic files that need converting to TypeScript, when Cucumber `.feature` tests need replacing with Jest/Vitest, when `Template.fromDirectory` throws because of an unversioned namespace or a removed API (`Clause.parse`, `template.getParserManager()`), when the `concerto` CLI fails to install transitively, or when `@accordproject/template-engine@3.x` rejects a previously-working `grammar.tem.md` for missing optional guards.
 ---
 
 # template-migrate
 
-Migrate Cicero templates and template-library repositories across Cicero major versions. Cicero 0.25/0.26 changed enough surface area that a working 0.24 template will typically refuse to load, build, or render until each of the items below is addressed.
+Migrate Cicero templates and template-library repositories across Cicero major versions.
+
+---
 
 ## When to use
 
+- A template has `.ergo` logic files and/or Cucumber `.feature` tests — it is on **0.22** and needs migrating to **0.25** (TypeScript runtime).
 - A template's CI fails with `The template targets Cicero version ^X but the current Cicero version is Y`.
 - `Template.fromDirectory` throws `Cannot use an unversioned import …` or `Namespace is not defined for type …`.
 - `Clause.parse`, `template.getParserManager()`, `toArchive('ergo')`, or `concerto-tools.FileWriter` references in your build pipeline throw at runtime.
 - `template-engine` rejects an existing grammar with `Optional properties used without guards: …`.
 - Workspace `compile` scripts fail with `sh: 1: concerto: not found` or, after install, a `SyntaxError: Unexpected token ':'` from `@stoplight/spectral-core`.
 
-## Approach
+---
+
+## Migration path overview
+
+| Source | Target | Key change |
+|--------|--------|-----------|
+| 0.22 (Ergo) | 0.25 (TypeScript) | Replace `.ergo` logic with `logic.ts`, update namespace convention, replace Cucumber with Jest/Vitest |
+| 0.24/0.25 | 0.26 | Bump toolchain, version Concerto namespaces, patch removed APIs |
+
+---
+
+## Part 1 — Migrating from 0.22 (Ergo) to 0.25 (TypeScript)
+
+### Template categories
+
+Identify the category before starting — it determines which steps are required.
+
+| Category | Description | Examples |
+|----------|-------------|---------|
+| **A** — Logic | Has `logic/` with `.ergo` files | `helloworld`, `latedeliveryandpenalty`, `volumediscount` |
+| **B** — Data-only | No `logic/`, no tests | `company-information`, `signature-block-title-name-date` |
+| **C** — Stateful | Has `state.json` and state-using logic | `helloworldstate`, `perishable-goods` |
+
+Category B only needs Steps 1, 2, 6, 7, and 8. Skip Steps 3, 4, and 5.
+
+### Overview of changes
+
+| Area | 0.22 (before) | 0.25 (after) |
+|------|--------------|-------------|
+| Logic language | Ergo (`.ergo`) | TypeScript (`logic.ts`) |
+| Logic class (stateless) | `contract X over Y { clause ... }` | `class X extends TemplateLogic<ITemplateModel>` |
+| Logic class (stateful) | `contract X over Y { clause ... }` | `class X extends TemplateLogic<ITemplateModel, IStateType>` |
+| Model namespace | `org.accordproject.<name>` (unversioned) | `io.clause.<name>@<semver>` (versioned) |
+| Main asset name | Custom (e.g. `HelloWorldClause`) | Always `TemplateModel` |
+| Main asset base | `Clause` or `Contract` | Always `Clause` |
+| `@template` decorator | Not used | Required on `TemplateModel` |
+| State definition | `state.json` file | `concept MyState identified { ... }` in model |
+| Events | `emit Obligation{...}` in Ergo | `event MyEvent { ... }` in model, returned in `events: object[]` |
+| Model imports | Wildcard, remote URL, unversioned | Selective, remote URL, versioned |
+| Local model copies | Not present | Required in `model/` directory |
+| Generated TS types | Not applicable | `logic/generated/` from `concerto compile` |
+| Cicero version | `^0.22.0` | `^0.25.0` |
+| Runtime field | `ergo` (or absent) | `typescript` |
+| Test framework | Cucumber/Gherkin `.feature` files | Jest/Vitest (`logic.test.ts`) with mocked runtime globals |
+
+### Step 1 — Update `package.json`
+
+```json
+// Before
+{
+    "accordproject": { "template": "clause", "cicero": "^0.22.0" },
+    "devDependencies": { "cucumber": "^5.1.0" },
+    "scripts": { "test": "cucumber-js test -r .cucumber.js" }
+}
+
+// After
+{
+    "accordproject": { "runtime": "typescript", "template": "clause", "cicero": "^0.25.0" }
+}
+```
+
+- Set `accordproject.cicero` to `"^0.25.0"`
+- Add `accordproject.runtime: "typescript"`
+- Remove `devDependencies` (cucumber) and `scripts.test` blocks
+- Bump `version` (patch or minor)
+
+### Step 2 — Update the model (`model/model.cto`)
+
+#### 2a. Version the namespace
+
+```
+// Before
+namespace org.accordproject.helloworld
+
+// After
+namespace io.clause.helloworld@0.1.0
+```
+
+Start all migrations at `@0.1.0`.
+
+#### 2b. Update imports to versioned, selective form
+
+```
+// Before (wildcard, unversioned)
+import org.accordproject.contract.* from https://models.accordproject.org/accordproject/contract.cto
+import org.accordproject.runtime.* from https://models.accordproject.org/accordproject/runtime.cto
+
+// After (selective, versioned)
+import org.accordproject.contract@0.2.0.Clause from https://models.accordproject.org/accordproject/contract@0.2.0.cto
+import org.accordproject.runtime@0.2.0.{Request,Response} from https://models.accordproject.org/accordproject/runtime@0.2.0.cto
+```
+
+Common versioned import mappings:
+
+| Old import | New import |
+|-----------|-----------|
+| `org.accordproject.contract.*` from `.../contract.cto` | `org.accordproject.contract@0.2.0.Clause` from `.../contract@0.2.0.cto` |
+| `org.accordproject.runtime.*` from `.../runtime.cto` | `org.accordproject.runtime@0.2.0.{Request,Response}` from `.../runtime@0.2.0.cto` |
+| `org.accordproject.time.*` from `.../time@0.2.0.cto` | `org.accordproject.time@0.3.0.{Duration,TemporalUnit}` from `.../time@0.3.0.cto` |
+| `org.accordproject.party.*` | Remove — Party references are not supported |
+| `org.accordproject.obligation.*` | Remove — replace with `event` declarations |
+| `org.accordproject.money.*` | Remove — replace with plain `Double` fields |
+
+Only import the specific types you actually use (no wildcards).
+
+#### 2c. Rename main asset to `TemplateModel` and add `@template`
+
+```
+// Before
+asset HelloWorldClause extends Clause {
+  o String name
+}
+
+// After
+@template
+asset TemplateModel extends Clause {
+  o String name
+}
+```
+
+- Must be named `TemplateModel`, must extend `Clause`, must have `@template`
+- If the old asset extended `Contract`, change it to `Clause`
+- Remove `--> Party` relationship fields
+
+#### 2d. Add `event` declaration (if template emits events — Categories A & C)
+
+```
+event LateDeliveryAndPenaltyEvent {
+  o Boolean penaltyCalculated
+}
+```
+
+#### 2e. Add state `concept` (Category C — stateful templates only)
+
+Replace `state.json` with a `concept ... identified` in the model:
+
+```
+concept LateDeliveryAndPenaltyState identified {
+  o Integer count
+  o Boolean lateDeliveryProcessed default=false
+  o Double totalPenalties default=0.0
+}
+```
+
+#### 2f. Copy dependent model files locally
+
+Download and place in `model/` with naming convention `@<host>.<path-with-dots>@<version>.cto`:
+
+```bash
+curl -o model/@models.accordproject.org.accordproject.contract@0.2.0.cto \
+  https://models.accordproject.org/accordproject/contract@0.2.0.cto
+curl -o model/@models.accordproject.org.accordproject.runtime@0.2.0.cto \
+  https://models.accordproject.org/accordproject/runtime@0.2.0.cto
+curl -o model/@models.accordproject.org.time@0.3.0.cto \
+  https://models.accordproject.org/time@0.3.0.cto
+```
+
+### Step 3 — Generate TypeScript types from the model (Categories A & C)
+
+```bash
+concerto compile \
+  --model model/model.cto \
+  --target typescript \
+  --output logic/generated
+```
+
+Install if needed: `npm install -g @accordproject/concerto-cli`
+
+Re-run whenever `model/model.cto` changes.
+
+### Step 4 — Replace Ergo logic with TypeScript (Categories A & C)
+
+Delete all `.ergo` files from `logic/`. Create `logic/logic.ts`.
+
+Three types are **injected by the runtime** — use suppression comments, do not import them:
+
+| Runtime type | Suppression |
+|-------------|------------|
+| `TemplateLogic<TModel, TState?>` | `// @ts-ignore` on the `class` line |
+| `EngineResponse<TState>` | `// @ts-expect-error` on the interface line |
+| `InitResponse<TState>` | `// @ts-expect-error` on return annotation |
+
+#### Stateless template example (helloworld)
+
+```typescript
+import { IMyRequest, IMyResponse, ITemplateModel } from "./generated/io.clause.helloworld@0.1.0";
+
+type HelloWorldResponse = { result: IMyResponse; }
+
+// @ts-ignore
+class HelloWorldLogic extends TemplateLogic<ITemplateModel> {
+    async trigger(data: ITemplateModel, request: IMyRequest): Promise<HelloWorldResponse> {
+        return {
+            result: {
+                output: `Hello ${data.name} ${request.input}`,
+                $timestamp: new Date(),
+                $class: 'io.clause.helloworld@0.1.0.MyResponse'
+            }
+        };
+    }
+}
+export default HelloWorldLogic;
+```
+
+#### Stateful template additions (Category C)
+
+- Add state type as second type parameter: `TemplateLogic<ITemplateModel, IMyState>`
+- `trigger` takes a third parameter `state: IMyState`
+- Add `async init(data: ITemplateModel): Promise<InitResponse<IMyState>>` returning initial state
+- Trigger response must include `state` and `events` alongside `result`
+
+#### Ergo → TypeScript translation table
+
+| Ergo pattern | TypeScript equivalent |
+|-------------|----------------------|
+| `contract.fieldName` | `data.fieldName` |
+| `return ResponseType{ ... }` | `return { result: { ..., $timestamp: new Date(), $class: '...' }, state, events }` |
+| `enforce condition else throw Error{...}` | `if (!condition) throw new Error('...')` |
+| `isBefore(date1, date2)` | `date1 < date2` |
+| `now()` | `new Date()` |
+| `diffDurationAs(d, unit)` | Manual ms arithmetic helper |
+| `emit PaymentObligation{...}` | Declare `event` in model; return in `events: [event]` |
+| String concatenation `++` | Template literals or `+` |
+| `min([a, b])` | `Math.min(a, b)` |
+
+Types from `org.accordproject.time` (e.g. `TemporalUnit`) may not be available at runtime — redeclare as inline enums/interfaces in `logic.ts` rather than importing from `./generated/`.
+
+### Step 5 — Write unit tests (`logic/logic.test.ts`)
+
+Mock runtime globals **before** importing logic:
+
+```typescript
+// @ts-nocheck
+declare global { var TemplateLogic: any; var EngineResponse: any; var InitResponse: any; }
+
+(global as any).TemplateLogic = class TemplateLogic<T, S> {
+    async init(data: T): Promise<any> { return { state: {} }; }
+    async trigger(data: T, request: any, state: S): Promise<any> { return {}; }
+};
+(global as any).EngineResponse = class EngineResponse<S> {};
+(global as any).InitResponse = class InitResponse<S> {};
+
+import MyLogic from './logic';
+import { ITemplateModel, IMyRequest } from './generated/io.clause.mytemplate@0.1.0';
+
+describe('MyLogic', () => {
+    it('should compute the expected result', async () => {
+        const logic = new MyLogic();
+        const result = await logic.trigger(model, request, state);
+        expect(result.result).toHaveProperty('$class');
+        expect(result.result).toHaveProperty('$timestamp');
+    });
+});
+```
+
+For stateful templates: test `init` separately, test state accumulation by passing `result.state` as `state` to the next call.
+
+### Step 6 — Update request/response data files
+
+Update all `$class` values to versioned namespaces:
+
+```json
+// Before
+{ "$class": "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyRequest" }
+
+// After
+{ "$class": "io.clause.latedeliveryandpenalty@0.1.0.LateDeliveryAndPenaltyRequest" }
+```
+
+Also update nested `$class` values (e.g. `org.accordproject.time.Duration` → `org.accordproject.time@0.3.0.Duration`).
+
+### Step 7 — Update `text/grammar.tem.md`
+
+Template grammar syntax (`{{variable}}`, `{{#if ...}}`, `{{/if}}`) is unchanged. However, replace Party relationship variables with plain string fields if any are used.
+
+### Step 8 — Remove legacy files
+
+Delete from each template:
+- `logic/*.ergo` — all Ergo files
+- `test/*.feature` — Cucumber scenarios
+- `.cucumber.js` — test runner setup
+- `state.json` — state is now in the model `concept`
+
+### Step 9 — Verify the migration
+
+```javascript
+const { TemplateArchiveProcessor } = require('@accordproject/template-engine');
+const { Template } = require('@accordproject/cicero-core');
+
+const template = await Template.fromDirectory('./src/helloworld');
+const processor = new TemplateArchiveProcessor(template);
+const data = { "$class": "io.clause.helloworld@0.1.0.TemplateModel", "name": "World",
+               "clauseId": "test-id", "$identifier": "test-id" };
+const draft = await processor.draft(data, 'markdown', {});
+const response = await processor.trigger(data, { input: "everyone" });
+```
+
+### Per-template checklist
+
+- [ ] `package.json` — `runtime: typescript`, `cicero: ^0.25.0`, cucumber removed
+- [ ] `model/model.cto` — namespace `io.clause.<name>@<ver>`, imports versioned/selective
+- [ ] `model/model.cto` — main asset is `TemplateModel` with `@template`, extends `Clause`
+- [ ] `model/model.cto` — state `concept MyState identified { ... }` (Category C)
+- [ ] `model/model.cto` — `event MyEvent { ... }` (if applicable)
+- [ ] `model/` — local copies of all imported `.cto` files
+- [ ] `logic/generated/` — TypeScript interfaces from `concerto compile`
+- [ ] `logic/logic.ts` — implements `TemplateLogic<ITemplateModel[, IState]>`, default export
+- [ ] `logic/logic.test.ts` — Jest/Vitest tests with mocked runtime globals
+- [ ] `logic/*.ergo` — deleted
+- [ ] `test/*.feature` and `.cucumber.js` — deleted
+- [ ] `state.json` — deleted
+- [ ] `request.json` — `$class` updated to versioned namespace
+
+### Special cases
+
+**Templates extending `Contract`:** Change to `Clause`, rename asset to `TemplateModel`.
+
+**Party relationships (`--> Party buyer`):** Not supported. Replace with plain `String` fields (`o String buyerName`) and update grammar accordingly.
+
+**`org.accordproject.obligation.*` imports:** Replace `emits PaymentObligation` with an `event` declaration in the model; return instances in the `events` array from `trigger`.
+
+**`org.accordproject.money.MonetaryAmount` fields:** Replace with `Double` (and optionally `String` for currency code) or a custom concept.
+
+**Multiple `.ergo` files (e.g. `hellomodule`):** Consolidate all logic into a single `logic/logic.ts`.
+
+---
+
+## Part 2 — Migrating from 0.25/0.26
 
 Work in this order — earlier steps unblock the later ones.
 
@@ -72,7 +402,8 @@ While migrating, also flip these conventions — they make subsequent builds an 
 
 - [Cicero](https://github.com/accordproject/cicero)
 - [template-engine](https://github.com/accordproject/template-engine)
-- [cicero-template-library](https://github.com/accordproject/cicero-template-library) — reference migration in [PR #484](https://github.com/accordproject/cicero-template-library/pull/484)
+- [cicero-template-library MIGRATION.md](https://github.com/accordproject/cicero-template-library/blob/main/MIGRATION.md) — 0.22 → 0.25 reference
+- [cicero-template-library PR #484](https://github.com/accordproject/cicero-template-library/pull/484) — reference migration
 
 ## Related skills
 

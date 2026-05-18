@@ -13,11 +13,25 @@ These skills follow the [Agent Skills](https://docs.claude.com/en/docs/claude-co
 | [`concerto-migrate`](./skills/concerto-migrate/) | Migrate Concerto models and data across major versions. |
 | [`concerto-codegen`](./skills/concerto-codegen/) | Generate code and schema artifacts from a `.cto` model. |
 | [`template-author`](./skills/template-author/) | Scaffold and edit Accord Project smart legal contract templates. |
-| [`template-migrate`](./skills/template-migrate/) | Migrate Cicero templates between major versions (e.g. 0.24/0.25 → 0.26). |
+| [`template-migrate`](./skills/template-migrate/) | Migrate Cicero templates between major versions (0.22 → 0.25, or 0.24/0.25 → 0.26). |
+
+## Installation
+
+Both Claude Code and GitHub Copilot use the same `SKILL.md` format — just copy the skills to the right location.
+
+**Claude Code** (user-level — available in every project):
+```bash
+git clone https://github.com/accordproject/skills /tmp/ap-skills && mkdir -p ~/.claude/skills && cp -r /tmp/ap-skills/skills/* ~/.claude/skills/
+```
+
+**GitHub Copilot** (project-level — add to the current repo):
+```bash
+git clone https://github.com/accordproject/skills /tmp/ap-skills && mkdir -p .github/skills && cp -r /tmp/ap-skills/skills/* .github/skills/
+```
+
+To install a single skill, replace the last `cp` argument with the specific directory (e.g. `…/skills/template-migrate`).
 
 ## Using a skill
-
-Copy the skill directory into your agent's skills location (e.g. `~/.claude/skills/<skill-name>/` for Claude Code), or reference this repo from your agent harness.
 
 ## Contributing
 
