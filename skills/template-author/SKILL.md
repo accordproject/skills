@@ -1,6 +1,10 @@
 ---
 name: template-author
 description: Scaffold and edit Accord Project smart legal contract templates — the directory layout, grammar.tem.md (TemplateMark), model files, TypeScript logic, sample drafts, and package.json metadata. Use when creating a new template, adding clauses, editing template grammar/model/logic, or aligning a template with the accordproject template-library conventions.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # template-author

@@ -1,6 +1,10 @@
 ---
 name: template-migrate
 description: Migrate Accord Project smart legal contract templates between Cicero major versions. Use when bumping `@accordproject/cicero-core` (e.g. 0.22 → 0.25 or 0.22/0.24/0.25 → 0.26), when a template has `.ergo` logic files that need converting to TypeScript, when Cucumber `.feature` tests need replacing with Jest/Vitest, when `Template.fromDirectory` throws because of an unversioned namespace or a removed API (`Clause.parse`, `template.getParserManager()`), when the `concerto` CLI fails to install transitively, or when `@accordproject/template-engine@3.x` rejects a previously-working `grammar.tem.md` for missing optional guards.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # template-migrate

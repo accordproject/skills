@@ -1,6 +1,10 @@
 ---
 name: concerto-author
 description: Author and edit Concerto model (.cto) files. Use when creating a new model, adding concepts/enums/participants/assets/transactions/events, defining relationships, applying decorators, working with namespaces and imports, or bumping a namespace version. Triggers on the presence of .cto files or requests to design a business schema with Concerto.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # concerto-author

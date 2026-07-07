@@ -1,6 +1,10 @@
 ---
 name: concerto-validate
 description: Validate JSON instances against a Concerto .cto model, diagnose validation errors, and generate sample conforming instances. Use when both a .cto model and a JSON instance are present, when a validation error needs explaining, or when the user wants a minimal sample instance for a model.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # concerto-validate

@@ -1,6 +1,10 @@
 ---
 name: concerto-codegen
 description: Generate code and schema artifacts from a Concerto .cto model. Use when the user has a model and wants TypeScript, Java, Go, JSON Schema, OpenAPI, GraphQL, PlantUML, or other supported outputs; when generated artifacts are stale relative to the model; or when wiring codegen into a build pipeline.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # concerto-codegen
