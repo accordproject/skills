@@ -19,7 +19,7 @@ Generate downstream artifacts from [Concerto](https://github.com/accordproject/c
 
 ## Supported targets
 
-`typescript`, `java`, `go`, `jsonschema`, `openapi`, `graphql`, `plantuml`, `csharp`, `xmlschema`, `protobuf`, `markdown`, `mermaid`, `avro`, `odata`
+`typescript`, `java`, `go`, `jsonschema`, `openapi`, `graphql`, `plantuml`, `csharp`, `xmlschema`, `protobuf`, `markdown`, `mermaid`, `avro`, `odata`, `rust`
 
 ## Approach
 
@@ -27,12 +27,12 @@ Generate downstream artifacts from [Concerto](https://github.com/accordproject/c
 2. **Pick an output directory** that matches project conventions (`src/generated/`, `gen/`, etc.).
 3. **Invoke the CLI:**
    ```
-   npx @accordproject/concerto-cli generate \
-     --ctoFiles <models...> \
-     --format <target> \
+   npx @accordproject/concerto-cli compile \
+     --model <models...> \
+     --target <target> \
      --output <dir>
    ```
-4. **Wire it into the build** — add an npm script like `"generate:types": "concerto-cli generate ..."` so artifacts stay in sync.
+4. **Wire it into the build** — add an npm script like `"generate:types": "concerto-cli compile ..."` so artifacts stay in sync.
 5. **Decide on git tracking** — generated files are often `.gitignore`d but checked-in is acceptable; ask the user.
 
 ## Reference
