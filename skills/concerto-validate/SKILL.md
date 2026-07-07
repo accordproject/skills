@@ -1,6 +1,10 @@
 ---
 name: concerto-validate
 description: Validate JSON instances against a Concerto .cto model, diagnose validation errors, and generate sample conforming instances. Use when both a .cto model and a JSON instance are present, when a validation error needs explaining, or when the user wants a minimal sample instance for a model.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # concerto-validate
@@ -18,7 +22,7 @@ Validate JSON data against [Concerto](https://github.com/accordproject/concerto)
 1. **Identify the target type** in the model (the `$class` field of the JSON, or ask the user).
 2. **Run validation** via the Concerto CLI:
    ```
-   npx @accordproject/concerto-cli validate --ctoFiles <model.cto> --input <data.json>
+   npx @accordproject/concerto-cli validate --model <model.cto> --input <data.json>
    ```
 3. **Interpret errors** by mapping the error path back to the property in the model.
 4. **For sample generation:** use `concerto-cli generate` or hand-craft a minimal instance covering required properties.

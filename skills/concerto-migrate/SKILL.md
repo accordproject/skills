@@ -1,6 +1,10 @@
 ---
 name: concerto-migrate
 description: Migrate Concerto models and JSON data across major Concerto versions. Use when upgrading a project's Concerto dependency, when a model uses deprecated syntax, or when JSON data fails validation after a model change. Covers namespace versioning, decorator changes, and import syntax shifts between Concerto 1.x, 2.x, and 3.x.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # concerto-migrate

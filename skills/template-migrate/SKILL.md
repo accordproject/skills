@@ -1,6 +1,10 @@
 ---
 name: template-migrate
 description: Migrate Accord Project smart legal contract templates between Cicero major versions. Use when bumping `@accordproject/cicero-core` (e.g. 0.22 → 0.25 or 0.22/0.24/0.25 → 0.26), when a template has `.ergo` logic files that need converting to TypeScript, when Cucumber `.feature` tests need replacing with Jest/Vitest, when `Template.fromDirectory` throws because of an unversioned namespace or a removed API (`Clause.parse`, `template.getParserManager()`), when the `concerto` CLI fails to install transitively, or when `@accordproject/template-engine@3.x` rejects a previously-working `grammar.tem.md` for missing optional guards.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # template-migrate
@@ -178,13 +182,13 @@ curl -o model/@models.accordproject.org.time@0.3.0.cto \
 ### Step 3 — Generate TypeScript types from the model (Categories A & C)
 
 ```bash
-concerto compile \
+npx @accordproject/concerto compile \
   --model model/model.cto \
   --target typescript \
   --output logic/generated
 ```
 
-Install if needed: `npm install -g @accordproject/concerto-cli`
+Install globally to use Cocnerto CLI directly: `npm install -g @accordproject/concerto-cli`
 
 Re-run whenever `model/model.cto` changes.
 

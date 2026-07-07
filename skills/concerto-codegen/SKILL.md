@@ -1,6 +1,10 @@
 ---
 name: concerto-codegen
 description: Generate code and schema artifacts from a Concerto .cto model. Use when the user has a model and wants TypeScript, Java, Go, JSON Schema, OpenAPI, GraphQL, PlantUML, or other supported outputs; when generated artifacts are stale relative to the model; or when wiring codegen into a build pipeline.
+license: Apache-2.0
+metadata:
+  version: 0.1.0
+  author: accordproject
 ---
 
 # concerto-codegen
@@ -15,7 +19,7 @@ Generate downstream artifacts from [Concerto](https://github.com/accordproject/c
 
 ## Supported targets
 
-`typescript`, `java`, `go`, `jsonschema`, `openapi`, `graphql`, `plantuml`, `csharp`, `xmlschema`, `protobuf`, `markdown`, `mermaid`, `avro`, `odata`
+`typescript`, `java`, `go`, `jsonschema`, `openapi`, `graphql`, `plantuml`, `csharp`, `xmlschema`, `protobuf`, `markdown`, `mermaid`, `avro`, `odata`, `rust`
 
 ## Approach
 
@@ -23,12 +27,12 @@ Generate downstream artifacts from [Concerto](https://github.com/accordproject/c
 2. **Pick an output directory** that matches project conventions (`src/generated/`, `gen/`, etc.).
 3. **Invoke the CLI:**
    ```
-   npx @accordproject/concerto-cli generate \
-     --ctoFiles <models...> \
-     --format <target> \
+   npx @accordproject/concerto-cli compile \
+     --model <models...> \
+     --target <target> \
      --output <dir>
    ```
-4. **Wire it into the build** — add an npm script like `"generate:types": "concerto-cli generate ..."` so artifacts stay in sync.
+4. **Wire it into the build** — add an npm script like `"generate:types": "concerto-cli compile ..."` so artifacts stay in sync.
 5. **Decide on git tracking** — generated files are often `.gitignore`d but checked-in is acceptable; ask the user.
 
 ## Reference

@@ -17,6 +17,12 @@ These skills follow the [Agent Skills](https://docs.claude.com/en/docs/claude-co
 
 ## Installation
 
+```sh
+npx skills add accordproject/skills
+```
+
+## Installation from Source
+
 Both Claude Code and GitHub Copilot use the same `SKILL.md` format — just copy the skills to the right location.
 
 **Claude Code** (user-level — available in every project):

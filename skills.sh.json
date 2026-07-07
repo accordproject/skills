@@ -1,0 +1,23 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Concerto",
+      "description": "Skills for working with Concerto models.",
+      "skills": [
+        "concerto-author",
+        "concerto-migrate",
+        "concerto-validate"
+      ]
+    },
+    {
+      "title": "Template",
+      "description": "Skills for working with TemplateMark templates.",
+      "skills": [
+        "template-author",
+        "template-migrate"
+      ]
+    }
+  ]
+}
