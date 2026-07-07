@@ -18,7 +18,7 @@ Validate JSON data against [Concerto](https://github.com/accordproject/concerto)
 1. **Identify the target type** in the model (the `$class` field of the JSON, or ask the user).
 2. **Run validation** via the Concerto CLI:
    ```
-   npx @accordproject/concerto-cli validate --ctoFiles <model.cto> --input <data.json>
+   npx @accordproject/concerto-cli validate --model <model.cto> --input <data.json>
    ```
 3. **Interpret errors** by mapping the error path back to the property in the model.
 4. **For sample generation:** use `concerto-cli generate` or hand-craft a minimal instance covering required properties.

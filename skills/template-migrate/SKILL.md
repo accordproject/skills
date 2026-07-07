@@ -178,13 +178,13 @@ curl -o model/@models.accordproject.org.time@0.3.0.cto \
 ### Step 3 — Generate TypeScript types from the model (Categories A & C)
 
 ```bash
-concerto compile \
+npx @accordproject/concerto compile \
   --model model/model.cto \
   --target typescript \
   --output logic/generated
 ```
 
-Install if needed: `npm install -g @accordproject/concerto-cli`
+Install globally to use Cocnerto CLI directly: `npm install -g @accordproject/concerto-cli`
 
 Re-run whenever `model/model.cto` changes.
 
