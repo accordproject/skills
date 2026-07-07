@@ -6,19 +6,17 @@
       "title": "Concerto",
       "description": "Skills for working with Concerto models.",
       "skills": [
-        "vercel-react-best-practices",
-        "vercel-composition-patterns",
-        "vercel-react-view-transitions",
-        "vercel-react-native-skills"
+        "concerto-author",
+        "concerto-migrate",
+        "concerto-validate"
       ]
     },
     {
       "title": "Template",
       "description": "Skills for working with TemplateMark templates.",
       "skills": [
-        "deploy-to-vercel",
-        "vercel-cli-with-tokens",
-        "vercel-optimize"
+        "template-author",
+        "template-migrate"
       ]
     }
   ]
