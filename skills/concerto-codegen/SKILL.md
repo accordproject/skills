@@ -44,3 +44,4 @@ Generate downstream artifacts from [Concerto](https://github.com/accordproject/c
 
 - Editing the source model → use `concerto-author`
 - Validating instances → use `concerto-validate`
+- Verifying generated artifacts compile/validate with real toolchains → use `codegen-verify`
