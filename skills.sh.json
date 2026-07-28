@@ -7,6 +7,8 @@
       "description": "Skills for working with Concerto models.",
       "skills": [
         "concerto-author",
+        "concerto-codegen",
+        "codegen-verify",
         "concerto-migrate",
         "concerto-validate"
       ]

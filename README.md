@@ -12,6 +12,7 @@ These skills follow the [Agent Skills](https://docs.claude.com/en/docs/claude-co
 | [`concerto-validate`](./skills/concerto-validate/) | Validate JSON instances against a Concerto model and explain errors. |
 | [`concerto-migrate`](./skills/concerto-migrate/) | Migrate Concerto models and data across major versions. |
 | [`concerto-codegen`](./skills/concerto-codegen/) | Generate code and schema artifacts from a `.cto` model. |
+| [`codegen-verify`](./skills/codegen-verify/) | Verify Concerto codegen output with real compilers, schema checkers, and linters. |
 | [`template-author`](./skills/template-author/) | Scaffold and edit Accord Project smart legal contract templates. |
 | [`template-migrate`](./skills/template-migrate/) | Migrate Cicero templates between major versions (0.22 → 0.25, or 0.24/0.25 → 0.26). |
 
