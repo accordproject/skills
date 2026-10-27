@@ -38,6 +38,22 @@ git clone https://github.com/accordproject/skills /tmp/ap-skills && mkdir -p .gi
 To install a single skill, replace the last `cp` argument with the specific directory (e.g. `…/skills/template-migrate`).
 
 ## Using a skill
+Skills are automatically discovered and used when a user's request matches the skill's purpose.
+
+For example, if a user wants to summarize a CSV file:
+
+Locate a CSV analysis skill in the collection.
+
+Open the AI assistant that supports skills.
+
+Upload the CSV file.
+
+Use a prompt such as:
+
+Analyze this CSV file and summarize the key trends.
+The assistant will identify the relevant skill, process the file, and return a summary of important insights, trends, and anomalies.
+
+Different skills provide different capabilities, so users should review the skill documentation in the corresponding SKILL.md file for details and examples.
 
 ## Contributing
 
